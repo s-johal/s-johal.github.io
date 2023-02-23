@@ -1,0 +1,438 @@
+---
+title: "Google Data Analytics Capstone - Case Study 1"
+author: "Sumeet Johal"
+date: "2023-02-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## ASK
+
+#### **Scenario**
+You are a junior data analyst working in the marketing analyst team at Cyclistic, a bike-share company in Chicago. The director
+of marketing believes the company’s future success depends on maximizing the number of annual memberships. Therefore,
+your team wants to understand how casual riders and annual members use Cyclistic bikes differently. From these insights,
+your team will design a new marketing strategy to convert casual riders into annual members. But first, Cyclistic executives
+must approve your recommendations, so they must be backed up with compelling data insights and professional data
+visualizations.
+
+#### **Characters and teams**
+- **Cyclistic:** A bike-share program that features more than 5,800 bicycles and 600 docking stations. Cyclistic sets itself
+apart by also offering reclining bikes, hand tricycles, and cargo bikes, making bike-share more inclusive to people with
+disabilities and riders who can’t use a standard two-wheeled bike. The majority of riders opt for traditional bikes; about
+8% of riders use the assistive options. Cyclistic users are more likely to ride for leisure, but about 30% use them to
+commute to work each day.
+
+- **Lily Moreno:** The director of marketing and your manager. Moreno is responsible for the development of campaigns
+and initiatives to promote the bike-share program. These may include email, social media, and other channels.
+
+- **Cyclistic marketing analytics team:** A team of data analysts who are responsible for collecting, analyzing, and
+reporting data that helps guide Cyclistic marketing strategy. You joined this team six months ago and have been busy
+learning about Cyclistic’s mission and business goals — as well as how you, as a junior data analyst, can help Cyclistic
+achieve them.
+- Cyclistic executive team: The notoriously detail-oriented executive team will decide whether to approve the
+recommended marketing program.
+
+#### **Guiding Questions:**
+- **What is the problem you are trying to solve?**
+
+  Determine what sets casual and member rides apart, and how to create a marketing strategy to convert casual users to members.
+
+- **How can your insights drive business decisions?**
+
+  They can help identify trends that show benefits for being members, and let the marketing team use this in their campaigns.
+
+- **Clear statement of the business task**
+
+  Understand how casual and member riders differ to help design marketing strategies aimed at converting casual riders into annual members.
+
+## Prepare
+
+#### **Guiding questions**
+
+- **Where is your data located?**
+
+  On kaggle as a dataset named "tripdata_2022". Also available from original source [here]( https://divvy-tripdata.s3.amazonaws.com/index.html) and license available [here](https://ride.divvybikes.com/data-license-agreement).
+
+- **How is the data organized?**
+
+  The data is in 12 csv files, one for each month of the year 2022.
+
+- **Are there issues with bias or credibility in this data? Does your data ROCCC?**
+
+  There is low chances of bias since the data is provided by the company itself and they have good credibility, the data also meets ROCCC since it is first party data from the previous calendar year.
+
+- **How are you addressing licensing, privacy, security, and accessibility?**
+
+  The data is publicly available and covered by the company's license, both of which are included above.
+
+- **How did you verify the data’s integrity?**
+
+  Looked at formats of data for all files and found them to be consistent, also removed any duplicates or NAs.
+
+- **How does it help you answer your question?**
+
+  It allows us to find trends between casual and members, and also see what sets them apart.
+
+- **Are there any problems with the data?**
+
+  No problems were found with the data.
+
+## Process
+
+#### **Guiding questions**
+
+- **What tools are you choosing and why?**
+
+  I am using R studio since the dataset is too big for spreadsheets and I will also be able to clean,analyze and create graphs for the data in the same software.
+
+- **Have you ensured your data’s integrity?**
+
+  I made sure to check that the format of the coloumns stayed consistent through the cleaning process.
+
+- **What steps have you taken to ensure that your data is clean?**
+
+  Removed rows containing NAs and removed duplicate rows.
+
+- **How can you verify that your data is clean and ready to analyze?**
+
+  All data cleaning steps are shown along with what they were used for.
+
+- **Have you documented your cleaning process so you can review and share those results?**
+
+  Yes, the process is documented in the file.
+
+## Analysis
+
+### Code
+
+#### Load packages
+````{r load-packages}
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+````
+
+#### Importing csv files
+````{r}
+tripdata_202201 <- read.csv("E:/Analytics/Cyclistic/202201-divvy-tripdata.csv")
+tripdata_202202 <- read.csv("E:/Analytics/Cyclistic/202202-divvy-tripdata.csv")
+tripdata_202203 <- read.csv("E:/Analytics/Cyclistic/202203-divvy-tripdata.csv")
+tripdata_202204 <- read.csv("E:/Analytics/Cyclistic/202204-divvy-tripdata.csv")
+tripdata_202205 <- read.csv("E:/Analytics/Cyclistic/202205-divvy-tripdata.csv")
+tripdata_202206 <- read.csv("E:/Analytics/Cyclistic/202206-divvy-tripdata.csv")
+tripdata_202207 <- read.csv("E:/Analytics/Cyclistic/202207-divvy-tripdata.csv")
+tripdata_202208 <- read.csv("E:/Analytics/Cyclistic/202208-divvy-tripdata.csv")
+tripdata_202209 <- read.csv("E:/Analytics/Cyclistic/202209-divvy-tripdata.csv")
+tripdata_202210 <- read.csv("E:/Analytics/Cyclistic/202210-divvy-tripdata.csv")
+tripdata_202211 <- read.csv("E:/Analytics/Cyclistic/202211-divvy-tripdata.csv")
+tripdata_202212 <- read.csv("E:/Analytics/Cyclistic/202212-divvy-tripdata.csv")
+````
+
+#### Examining datasets
+````{r}
+str(tripdata_202201)
+str(tripdata_202202)
+str(tripdata_202203)
+str(tripdata_202204)
+str(tripdata_202205)
+str(tripdata_202206)
+str(tripdata_202207)
+str(tripdata_202208)
+str(tripdata_202209)
+str(tripdata_202210)
+str(tripdata_202211)
+str(tripdata_202212)
+````
+
+#### All files have columns in same formats, combining into one file
+````{r}
+tripdata_2022 <- rbind(
+                       tripdata_202201, 
+                       tripdata_202202, 
+                       tripdata_202203,
+                       tripdata_202204, 
+                       tripdata_202205, 
+                       tripdata_202206, 
+                       tripdata_202207, 
+                       tripdata_202208,
+                       tripdata_202209, 
+                       tripdata_202210, 
+                       tripdata_202211, 
+                       tripdata_202212
+                       )
+````
+
+#### Confirming total number of rows for individual files
+````{r}
+rowtotal <- sum(
+                nrow(tripdata_202201), 
+                nrow(tripdata_202202), 
+                nrow(tripdata_202203),
+                nrow(tripdata_202204), 
+                nrow(tripdata_202205), 
+                nrow(tripdata_202206), 
+                nrow(tripdata_202207),
+                nrow(tripdata_202208), 
+                nrow(tripdata_202209), 
+                nrow(tripdata_202210), 
+                nrow(tripdata_202211), 
+                nrow(tripdata_202212)
+                )
+print(rowtotal)
+````
+
+#### Confirming total number of rows for combined dataset
+````{r}
+print(nrow(tripdata_2022))
+````
+
+#### Examining combined dataset
+````{r}
+str(tripdata_2022)
+head(tripdata_2022)
+````
+
+#### Formatting date coloumn into individual columns for date,month,day,year and day of week
+````{r}
+tripdata_2022$date <- as.Date(tripdata_2022$started_at)
+tripdata_2022$month <- format(as.Date(tripdata_2022$date), "%b")
+tripdata_2022$day <- format(as.Date(tripdata_2022$date), "%d")
+tripdata_2022$year <- format(as.Date(tripdata_2022$date), "%Y")
+tripdata_2022$day_of_week <- format(as.Date(tripdata_2022$date), "%A")
+head(tripdata_2022)
+````
+
+#### Removing NA
+
+````{r, eval=FALSE}
+drop_na(tripdata_2022)
+````
+
+#### Removing duplicates
+````{r}
+tripdata_2022_no_duplicates <- tripdata_2022[!duplicated(tripdata_2022$ride_id), ]
+print(paste("removed", nrow(tripdata_2022) - nrow(tripdata_2022_no_duplicates), "duplicate rows"))
+````
+
+#### Creating a column to determine ride length
+````{r}
+tripdata_2022_v2 <- mutate(tripdata_2022_no_duplicates, ride_length = difftime(ended_at, started_at, units = "mins"))
+str(tripdata_2022_v2)
+````
+
+#### Filtering out rows with a ride length less than 0
+````{r}
+nrow(tripdata_2022_v2[tripdata_2022_v2$ride_length < 0,])
+tripdata_2022_v3 <- tripdata_2022_v2[!tripdata_2022_v2$ride_length < 0,]
+````
+
+#### Comparing amount of members vs casual riders
+````{r}
+rider_type_total <- table(tripdata_2022_v3$member_casual)
+data.frame(rider_type_total)
+````
+
+#### Trip data by day of week
+````{r eval=FALSE}
+tripdata_2022_v3$day_of_week <- ordered(tripdata_2022_v3$day_of_week, 
+levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+````
+
+````{r}
+trip_stats <- tripdata_2022_v3 %>%
+    group_by(member_casual, day_of_week) %>%
+    summarise(
+      average_ride_length = mean(ride_length), 
+      median_ride_length = median(ride_length), 
+      min_ride_length = min(ride_length), 
+      max_ride_length = max(ride_length), 
+      rider_type_total = n()
+      )
+data.frame(trip_stats)
+````
+
+#### Trip data by month
+````{r eval=FALSE}
+tripdata_2022_v3 %>%
+  mutate(month = factor(month, levels = month.name)) %>%
+  arrange(month)
+````
+
+````{r}
+tripdata_2022_v3$month <- ordered(tripdata_2022_v3$month, 
+  levels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+trip_stats_month <- tripdata_2022_v3 %>%
+  group_by(month, member_casual) %>%
+  summarise(
+    average_ride_length = mean(ride_length), 
+    median_ride_length = median(ride_length), 
+    min_ride_length = min(ride_length), 
+    max_ride_length = max(ride_length), 
+    rider_type_total = n()
+    )
+data.frame(trip_stats_month)
+````
+
+#### Popular start stations
+````{r}
+popular_start_stations <- tripdata_2022_v3 %>% 
+  group_by(start_station_name, member_casual) %>% 
+  summarise(number_of_starts = n()) %>% 
+  filter(start_station_name != "") %>% 
+  arrange(- number_of_starts)
+tibble(popular_start_stations)
+````
+
+#### **Findings**
+
+- There were more member riders (3 345 640) than casual riders (2 321 977) in 2022.
+
+- The most popular day for members was Thursday with 532 255 rides.
+
+- The most popular day for casuals was Saturday with 473 185 rides.
+
+- The most popular month for members was August with  427 000 rides.
+
+- The most popular month for casuals was July with 406 046 rides.
+
+- The most popular station for members was Kingsbury St & Kinzie St with 24 937 rides.  
+
+- The most popular station for casuals was Streeter Dr & Grand Ave with 58 094 rides.
+
+## Share
+
+#### **Guiding questions**
+
+- **Were you able to answer the question of how annual members and casual riders use Cyclistic bikes differently?**
+
+  Yes, several trends and differences in how members and casual riders use bikes differently emerged.
+
+- **What story does your data tell?**
+
+  The data tells us that there are more member rides but that the casuals have longer average trip durations.
+
+- **How do your findings relate to your original question?**
+
+  They will allow a marketing strategy to be made for casuals that will highlight benefits of becoming a member since they are already on average using the bike for longer durations.
+
+- **Who is your audience? What is the best way to communicate with them?**
+
+  The key stakeholders identified before. the best way to communicate the findings would be through a rreport or prsentation of the findings.
+
+- **Can data visualization help you share your findings?**
+
+  Yes, graphs can quickly convey the results of the data analysis.
+
+- **Is your presentation accessible to your audience?**
+
+  This notebook is available on Kaggle.
+
+### Graphs for day of week 
+````{r}
+tripdata_2022_v3$day_of_week <- ordered(tripdata_2022_v3$day_of_week, 
+levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+graph_data_weekly <- tripdata_2022_v3 %>%
+  group_by(member_casual, day_of_week) %>%
+  summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>%
+  arrange(member_casual, day_of_week)
+````
+
+#### Average ride length for day of week
+````{r}
+ggplot(graph_data_weekly, aes(x = day_of_week, y = average_duration, fill = member_casual)) +
+  labs(title = "Average Trip Duration Per Day Of Week, by member type", 
+       x = "Day Of Week", y = "Average Trip Duration") +
+  geom_col(position = "dodge")
+````
+
+#### Total rides for day of week
+````{r}
+ggplot(graph_data_weekly,aes(x = day_of_week, y = number_of_rides, fill = member_casual)) +
+  labs(title = "Number Of Rides Per Day Of Week, by member type", x = "Day Of Week", y = "Number Of Rides") +
+  geom_col(position = "dodge")
+````
+
+### Graphs for month
+````{r}
+tripdata_2022_v3$month <- ordered(tripdata_2022_v3$month, 
+levels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+graph_data_monthly <- tripdata_2022_v3 %>%
+  group_by(member_casual, month) %>%
+  summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>%
+  arrange(member_casual, month)
+````
+
+#### Average ride length for month
+````{r}  
+ggplot(graph_data_monthly,aes(x = month, y = average_duration, fill = member_casual)) +
+  labs(title = "Average Trip Duration Per Month, by member type", x = "Month", y = "Average Trip Duration ") +
+  geom_col(position = "dodge") 
+````
+
+#### Total rides for month
+````{r}
+ggplot(graph_data_monthly,aes(x = month, y = number_of_rides, fill = member_casual)) +
+  labs(title = "Number of Rides Per Month, by member type", x = "Month", y = "Number Of Rides" ) +
+  geom_col(position = "dodge") 
+````
+
+### Number of rides vs Average duration, per day
+````{r}
+twovargraph <- tripdata_2022_v3 %>%
+  group_by(date) %>%
+  summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>%
+  arrange(date)
+````
+````{r}
+ggplot(twovargraph, aes(x = date)) +
+  labs(title = "Number Of Rides vs Average Trip Duration", x = "Date") +
+  geom_col(aes(y = number_of_rides, color = "Number Of Rides")) +
+  geom_smooth(aes(y = average_duration*1500, color = "Average Trip Duration")) +
+  scale_color_manual("", breaks = c("Number Of Rides", "Average Trip Duration"),
+                     values = c("Number Of Rides" = "cornflowerblue", "Average Trip Duration" = "red")) +
+  scale_y_continuous(
+    name = "Number Of Rides" ,
+    sec.axis = sec_axis(~./1500, name = "Average Trip Duration")) +
+  theme(axis.title.y.right = element_text(angle = 90))
+````
+
+
+## Act
+
+#### **Guiding questions**
+
+- **What is your final conclusion based on your analysis?**
+
+  Casual riders currently have longer trip durations on average but have less total rides than members.
+
+- **How could your team and business apply your insights?**
+
+  Create a marketing campaign targeting casual riders that would highlight the benefits of becoming a member, such as potential cost savings over longer trips.
+
+- **What next steps would you or your stakeholders take based on your findings?**
+
+  Look into the demographics of the casuals, and their most popular stations to help with marketing strategies.
+
+- **Is there additional data you could use to expand on your findings?**
+
+  Additional data could be demographics and financial data on the riders to see if there are additional trends that can be identified that would help with marketing strategy.
+  
+  
+  
+##### **Credit**
+
+M.Maguire's work on the Google Data Analytics Capstone - Case study 1 for 2020 was used as a general outline on how to clean the code and generate appropriate graphs.
+
+Title: Google Data Analytics Capstone - Case Study 1
+
+Author: M. Maguire
+
+Date: Nov 24, 2021
+
+Availability:[Kaggle link](https://www.kaggle.com/code/mmaguire/google-data-analytics-capstone-case-study-1)
