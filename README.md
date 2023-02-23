@@ -1,1 +1,0 @@
-# s-johal.github.io
